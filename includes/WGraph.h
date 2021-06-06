@@ -20,7 +20,7 @@ class WGraph : public AdjMatGraph{
         }
 
         void load(std::string filename){
-            std::cout << filename << std::endl;
+            // std::cout << filename << std::endl;
             std::ifstream ifs(filename);
             std::string line;
             std::getline(ifs, line);

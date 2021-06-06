@@ -7,7 +7,7 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
         int randomWalker(int startIndex, int trial, float jumpProb) {
             std::random_device rd;
             std::mt19937 gen(rd());
-            std::uniform_int_distribution<int> intDis(0, size-1);
+            std::uniform_real_distribution<float> indexDis(0, size);
             std::uniform_real_distribution<float> realDis(0, 1);
 
             int finalIndex = startIndex;
@@ -22,7 +22,12 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                     // std::cout << "jump" << "\n";
 
                     // random으로 이동할 임의의 vertex 선택
-                    finalIndex = intDis(gen);
+                    finalIndex = static_cast<int>(indexDis(gen));
+
+                    // size와 같은 index가 생성됐을 경우, crash 방지
+                    if (finalIndex == size) {
+                        finalIndex -= 1;
+                    }
                     
                     // std::cout << "final index: " << finalIndex << "\n";
                     // std::cout << "jump to Vertex " << getVertex(finalIndex) << "\n";
@@ -53,6 +58,8 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                     
                     // std::cout << "final index: " << finalIndex << "\n";
                     // std::cout << "move to Vertex " << getVertex(finalIndex) << "\n";
+
+                    delete [] linkedList;
                 }
             }
 
@@ -63,7 +70,7 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
         float pageRank(int startIndex, int targetIndex, int trial, float jumpProb) {
             std::random_device rd;
             std::mt19937 gen(rd());
-            std::uniform_int_distribution<int> intDis(0, size-1);
+            std::uniform_real_distribution<float> indexDis(0, size);
             std::uniform_real_distribution<float> realDis(0, 1);
 
             // page 방문 횟수를 담는 array
@@ -77,7 +84,10 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                 float jump = realDis(gen);
 
                 if (jump < jumpProb) {
-                    finalIndex = intDis(gen);
+                    finalIndex = static_cast<int>(indexDis(gen));
+                    if (finalIndex == size) {
+                        finalIndex -= 1;
+                    }
                     // 방문할 때마다 value를 올려줌
                     pageRankList[finalIndex]++;
                 }
@@ -95,6 +105,8 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                     finalIndex = linkedList[indexDis(gen)];
                     // 방문할 때마다 value를 올려줌
                     pageRankList[finalIndex]++;
+
+                    delete [] linkedList;
                 }
             }
 
