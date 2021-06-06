@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-#define MAX_VTXS 1024
+#define MAX_VTXS 10000
 
 class AdjMatGraph{
     protected:
@@ -21,7 +21,7 @@ class AdjMatGraph{
         }
 
         ~AdjMatGraph(){
-            delete [] adj;
+            delete [] adj, vertices;
         }
 
         std::string getVertex(int i){ return vertices[i]; }

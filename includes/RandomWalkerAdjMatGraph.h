@@ -1,12 +1,13 @@
 #include "AdjMatGraph.h"
 #include <iostream>
 #include <random>
+#include <time.h>
 
 class RandomWalkerAdjMatGraph : public AdjMatGraph {
     public:
         int randomWalker(int startIndex, int trial, float jumpProb) {
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::mt19937 gen = std::mt19937((unsigned int)time(NULL));
             std::uniform_real_distribution<float> indexDis(0, size);
             std::uniform_real_distribution<float> realDis(0, 1);
 
@@ -52,9 +53,10 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                     // random으로 index 생성
                     // linked value보다 1 작아야 함 because 상단과 하단을 포함하여 난수를 생성하기 때문
                     std::uniform_int_distribution<int> indexDis(0, linked-1);
+                    int index = indexDis(gen);
 
                     // 생성한 난수로 이동할 vertex의 index를 fianlIndex에 저장
-                    finalIndex = linkedList[indexDis(gen)];
+                    finalIndex = linkedList[index];
                     
                     // std::cout << "final index: " << finalIndex << "\n";
                     // std::cout << "move to Vertex " << getVertex(finalIndex) << "\n";
@@ -69,7 +71,7 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
 
         float pageRank(int startIndex, int targetIndex, int trial, float jumpProb) {
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::mt19937 gen = std::mt19937((unsigned int)time(NULL));
             std::uniform_real_distribution<float> indexDis(0, size);
             std::uniform_real_distribution<float> realDis(0, 1);
 
@@ -100,9 +102,10 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
                             linkedList[linked++] = j;
                         }
                     }
-                    std::uniform_int_distribution<int> indexDis(0, linked-1);
 
-                    finalIndex = linkedList[indexDis(gen)];
+                    std::uniform_int_distribution<int> indexDis(0, linked-1);
+                    int index = indexDis(gen);
+                    finalIndex = linkedList[index];
                     // 방문할 때마다 value를 올려줌
                     pageRankList[finalIndex]++;
 
@@ -126,4 +129,67 @@ class RandomWalkerAdjMatGraph : public AdjMatGraph {
         bool isLinked(int u, int v){ return getEdge(u,v) != 0; }
 
         int getSize() { return size; }
+            
+        void loadtsv(std::string filename) {
+            // file load
+            std::ifstream ifs(filename);
+            std::string line;
+
+            // 첫 line read
+            std::getline(ifs, line);
+            
+            // source, target, weight를 동적할당
+            int *source = new int[MAX_VTXS];
+            int *target = new int[MAX_VTXS];
+            int *weight = new int[MAX_VTXS];
+            // 전체 data의 길이를 저장할 length
+            int length = 0;
+
+            // line이 안나올 때까지 loop
+            while (getline(ifs, line)) {
+                std::stringstream ss(line);
+                std::vector<std::string> item;
+                std::string tmp;
+                int i = 1;    
+                int num;
+
+                while(getline(ss, tmp, '\t')) {
+                    if (i == 1) {
+                        std::stringstream ssInt(tmp);
+                        ssInt >> num;
+                        source[length] = num;
+                        i++;
+                    }
+                    else if (i == 2) {
+                        std::stringstream ssInt(tmp);
+                        ssInt >> num;
+                        target[length] = num;
+                        i++;
+                    }
+                    else {
+                        std::stringstream ssInt(tmp);
+                        ssInt >> num;
+                        weight[length++] = 1;
+                        i = 1;
+                    }
+                }
+            }
+            ifs.close();
+
+            int min = source[0];
+            int max = source[0];
+
+            for (int i = 0; i < length; i++) {
+                insertEdge(source[i], target[i]);
+                min = std::min(min, source[i]);
+                max = std::max(max, source[i]);
+                // std::cout << "source: " << source[i] << " / target: " << target[i] << " / weight: " << weight[i] << "\n";
+            }
+
+            for (min; min < max + 1; min++) {
+                insertVertex(std::to_string(min));
+            }
+
+            delete [] source, target, weight;
+        }
 };
